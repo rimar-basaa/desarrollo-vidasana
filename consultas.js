@@ -28,4 +28,11 @@ const deleteEvento = async (id) => {
     if (!rowCount) throw { code: 404, message: "No se encontró ningún evento con este ID" };
 };
 
-module.exports = { getEventos, deleteEvento, verificarCredenciales };
+const updateEvento = async (titulo, descripcion, fecha, lugar, id) => {
+    const consulta = "UPDATE eventos SET titulo = $1, descripcion = $2, fecha = $3, lugar = $4 WHERE id = $5";
+    const values = [titulo, descripcion, fecha, lugar, id]
+    const { rowCount } = await pool.query(consulta, values);
+    if (!rowCount) throw { code: 404, message: "No se encontró ningún evento con este ID" };
+};
+
+module.exports = { getEventos, deleteEvento, updateEvento, verificarCredenciales };
