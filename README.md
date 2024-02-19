@@ -3,3 +3,4 @@
 - Autorizacion de usuario
 - Acceso a borrar con token
 - Acesso a modificar con token
+- Registrar usuarios con Encriptacion de password
