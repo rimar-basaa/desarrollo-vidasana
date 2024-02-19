@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan')
-const { getEventos, deleteEvento, updateEvento, verificarCredenciales } = require('./consultas');
+const { getEventos, deleteEvento, updateEvento, registrarUsuario, verificarCredenciales } = require('./consultas');
 
 //MMiddleware
 app.use(cors());
@@ -15,7 +15,7 @@ app.get("/eventos", async (req, res) => {
         const eventos = await getEventos();
         res.json(eventos);
     } catch (error) {
-        res.status(error.code || 500).send(error);
+        
     };
 });
 
@@ -59,6 +59,17 @@ app.put("/eventos/:id", async (req, res) => {
 
     } catch (error) {
         res.status(500).json({message: "NO tiene autorizacion"});
+    };
+});
+
+app.post("/usuarios", async (req, res) => {
+    try {
+        const usuario = req.body;
+        await registrarUsuario(usuario);
+        res.json({ message: "Usuario agregado"});
+        
+    } catch (error) {
+        res.status(error.code || 500).send(error);
     };
 });
 

@@ -1,4 +1,5 @@
 const { Pool } = require('pg')
+const bcrypt = require('bcryptjs');
 
 const pool = new Pool({
     host: 'localhost',
@@ -9,11 +10,14 @@ const pool = new Pool({
 })
 
 const verificarCredenciales = async (email, password) => {
-    const consulta = "SELECT * FROM usuarios WHERE email = $1 AND password = $2";
-    const values = [email, password];
-    const { rowCount } = await pool.query(consulta, values);
-    if (!rowCount)
-        throw {code: 404, message: "NO se encontro ningun usuario con esta credencial"};
+    const consulta = "SELECT * FROM usuarios WHERE email = $1";
+    const values = [email];
+    const { rows: [usuario], rowCount } = await pool.query(consulta, values);
+    const { password: passwordEncriptada } = usuario;
+    const passwordEsCorrecta = bcrypt.compareSync(password, passwordEncriptada);
+
+    if (!passwordEsCorrecta || !rowCount)
+        throw { code: 401, message: "Email o contraseña incorrecta" };
 };
 
 const getEventos = async () => {
@@ -35,4 +39,18 @@ const updateEvento = async (titulo, descripcion, fecha, lugar, id) => {
     if (!rowCount) throw { code: 404, message: "No se encontró ningún evento con este ID" };
 };
 
-module.exports = { getEventos, deleteEvento, updateEvento, verificarCredenciales };
+const registrarUsuario = async (usuario) => {
+    const { email, password } = usuario;
+    const passwordEncriptada = bcrypt.hashSync(password);
+    const consulta = "INSERT INTO usuarios values (DEFAULT, $1, $2)";
+    const values = [email, passwordEncriptada];
+    await pool.query(consulta, values);
+};
+
+module.exports = { 
+    getEventos,
+    deleteEvento, 
+    updateEvento, 
+    registrarUsuario,
+    verificarCredenciales
+ };
